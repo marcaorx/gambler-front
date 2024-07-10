@@ -3,6 +3,7 @@ import GameSignal from "@/components/gameSignal";
 import Header from "@/components/header";
 import OpenGameModal from "@/components/openGameModal";
 import { useAuth } from "@/context/authContext";
+import { useSubscription } from "@/context/subscriptionContext";
 import { useValidateJsonKey } from "@/hooks/useValidateJsonKey";
 import { Center, Flex } from "@chakra-ui/react";
 import { redirect } from "next/navigation";
@@ -10,12 +11,20 @@ import { redirect } from "next/navigation";
 const gameName = "FootballStudio";
 
 export default function FootballStudio() {
+  const { userHasAccess } = useSubscription();
+  const { isKeyValidated } = useValidateJsonKey("hasDoneLeonSetup");
   const { isUserLoggedIn } = useAuth();
-  const { isKeyValidated } = useValidateJsonKey(`hasDone${gameName}Setup`);
+
   if (!isUserLoggedIn) {
     return redirect("/entrar");
   }
 
+  if (isUserLoggedIn && !userHasAccess) {
+    return redirect("/assinar");
+  }
+  if (!isUserLoggedIn) {
+    return redirect("/entrar");
+  }
   return (
     <Flex justify="center" direction="column" width="100vw">
       <Header />
